@@ -11,7 +11,7 @@
 #include <map>
 #include <condition_variable>
 
-#include "Logging.h"
+#include "ss_logging.h"
 
 constexpr char reconnect = true;
 constexpr int min_conn_cnt = 5;
