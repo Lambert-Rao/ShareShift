@@ -5,17 +5,21 @@
  *      Author: ziteng@mogujie.com
  */
 
+#include <cstring>
 #include "ConfigFileReader.h"
-CConfigFileReader::CConfigFileReader(const char *filename)
+#include "ss_logging.h"
+
+using namespace std;
+ConfigFileReader::ConfigFileReader(const char *filename)
 {
 	_LoadFile(filename);
 }
 
-CConfigFileReader::~CConfigFileReader()
+ConfigFileReader::~ConfigFileReader()
 {
 }
 
-char *CConfigFileReader::GetConfigName(const char *name)
+char *ConfigFileReader::GetConfigName(const char *name)
 {
 	if (!m_load_ok)
 		return NULL;
@@ -30,7 +34,7 @@ char *CConfigFileReader::GetConfigName(const char *name)
 	return value;
 }
 
-int CConfigFileReader::SetConfigValue(const char *name, const char *value)
+int ConfigFileReader::SetConfigValue(const char *name, const char *value)
 {
 	if (!m_load_ok)
 		return -1;
@@ -46,14 +50,14 @@ int CConfigFileReader::SetConfigValue(const char *name, const char *value)
 	}
 	return _WriteFIle();
 }
-void CConfigFileReader::_LoadFile(const char *filename)
+void ConfigFileReader::_LoadFile(const char *filename)
 {
 	m_config_file.clear();
 	m_config_file.append(filename);
 	FILE *fp = fopen(filename, "r");
 	if (!fp)
 	{
-		printf("can not open %s,errno = %d", filename, errno);
+        LOG_ERROR<< "can not open " << filename << ",errno = " << errno;
 		return;
 	}
 
@@ -82,7 +86,7 @@ void CConfigFileReader::_LoadFile(const char *filename)
 	m_load_ok = true;
 }
 
-int CConfigFileReader::_WriteFIle(const char *filename)
+int ConfigFileReader::_WriteFIle(const char *filename)
 {
 	FILE *fp = NULL;
 	if (filename == NULL)
@@ -114,7 +118,7 @@ int CConfigFileReader::_WriteFIle(const char *filename)
 	fclose(fp);
 	return 0;
 }
-void CConfigFileReader::_ParseLine(char *line)
+void ConfigFileReader::_ParseLine(char *line)
 {
 	char *p = strchr(line, '=');
 	if (p == NULL)
@@ -129,7 +133,7 @@ void CConfigFileReader::_ParseLine(char *line)
 	}
 }
 
-char *CConfigFileReader::_TrimSpace(char *name)
+char *ConfigFileReader::_TrimSpace(char *name)
 {
 	// remove starting space or tab
 	char *start_pos = name;

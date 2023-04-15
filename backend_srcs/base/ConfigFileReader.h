@@ -6,26 +6,26 @@
  */
 
 #pragma once
+#include <string>
+#include <map>
 
-
-class CConfigFileReader
+class ConfigFileReader
 {
 public:
-    CConfigFileReader(const char *filename);
-    ~CConfigFileReader();
+    ConfigFileReader(const char *filename);
+    ~ConfigFileReader();
 
     char *GetConfigName(const char *name);
     int SetConfigValue(const char *name, const char *value);
 
 private:
     void _LoadFile(const char *filename);
-    int _WriteFIle(const char *filename = NULL);
+    int _WriteFIle(const char *filename = nullptr);
     void _ParseLine(char *line);
     char *_TrimSpace(char *name);
 
     bool m_load_ok;
-    map<string, string> m_config_map;
-    string m_config_file;
+    std::map<std::string, std::string> m_config_map;
+    std::string m_config_file{};
 };
 
-#endif /* CONFIGFILEREADER_H_ */

@@ -1,5 +1,8 @@
 # Share Shift
 
+Other Language: [简体中文](./docs/zh-CN/README.zh-CN.md)
+
+
 [toc]
 
 build a cloud share platform with fastdfs and nginx
@@ -25,29 +28,4 @@ first, you need to build the enviroment, see [the enviroment file](./docs/enviro
     cp share_shift.conf ShareShift/build
     tmux
     ./share_shift
-```
-
-## Project Structure
-
-```mermaid
-graph LR
-    subgraph Browser
-    B((Browser))
-    end
-    subgraph Server
-    N[Nginx]
-    S[Server]
-    M[MySQL]
-    R[Redis]
-    F[fastdfs]
-    T((Temp Directory))
-    end
-    B ---|80| N
-    N ---|API| S
-    N ---|Upload file to temp directory| T
-    T ---|File transfer using pipe| F
-    S ---|Download file to send to Browser| T
-    S ---|Exchange data| M
-    S ---|Exchange data| R
-
 ```

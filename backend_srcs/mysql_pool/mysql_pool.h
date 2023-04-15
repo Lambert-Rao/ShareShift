@@ -5,7 +5,6 @@
 #pragma once
 
 #include <list>
-
 #include <mysql/mysql.h>
 #include <string>
 #include <map>
@@ -31,6 +30,7 @@ public:
     int GetInt(const char *key);
 
     char *GetString(const char *key);
+
 private:
     int GetIndex(const char *key);
 
@@ -39,11 +39,11 @@ private:
     std::map<std::string, size_t> key_map_;//<key, index>,e.g. <"id", 0>, <"name", 1>, <"age", 2>
 };
 
-//perpare statement for insert, update
+//prepare statement for insert, update
 class PrepareStatement
 {
 public:
-    PrepareStatement()=default;
+    PrepareStatement() = default;
 
     ~PrepareStatement();
 
@@ -53,7 +53,9 @@ public:
     void SetParameter(uint32_t index, T &value);
 
     bool ExecuteUpdate();
+
     uint32_t GetInsertId();
+
 private:
     MYSQL_STMT *statement_{};//the statement
     MYSQL_BIND *parameter_bind_{};//the bind of the paramerter
@@ -65,23 +67,21 @@ void PrepareStatement::SetParameter(uint32_t index, T &value)
 {
     if (index >= parameter_count_)
     {
-        LOG_ERROR<<"index out of range";
+        LOG_ERROR << "index out of range";
         return;
     }
-    if(std::is_same<T, int>::value || std::is_same<T, int32_t>::value)
+    if (std::is_same<T, int>::value || std::is_same<T, int32_t>::value)
     {
         parameter_bind_[index].buffer_type = MYSQL_TYPE_LONG;
         parameter_bind_[index].buffer = &value;
-    }
-    else if(std::is_same<T, const std::string>::value || std::is_same<T, std::string>::value)
+    } else if (std::is_same<T, const std::string>::value || std::is_same<T, std::string>::value)
     {
         parameter_bind_[index].buffer_type = MYSQL_TYPE_STRING;
         parameter_bind_[index].buffer = &value;
         parameter_bind_[index].buffer_length = value.length();
-    }
-    else
+    } else
     {
-        LOG_ERROR<<"unsupported type";
+        LOG_ERROR << "unsupported type";
     }
 }
 
@@ -102,8 +102,10 @@ public:
     bool ExecuteCreate(const char *sql_query);
 
     bool ExecuteDrop(const char *sql_query);
+
     //for a query which returns a result set like select
-    ResultSet* ExecuteQuery(const char *sql_query);
+    ResultSet *ExecuteQuery(const char *sql_query);
+
     //for a query which does not return a result set
     bool ExecutePassQuery(const char *sql_query);
 
@@ -118,11 +120,12 @@ public:
 
     ::uint32_t GetInsertId();
 
+    const char *GetPoolName();
+
 private:
     int row_num_{0};
     MySqlPool *pMySQLPool_{};//the pool which this connection belongs to
     MYSQL *mysql_{};//the connection
-    const char *GetPoolName();
 };
 
 //class to manage MySql connections
@@ -133,6 +136,7 @@ public:
 
     MySqlPool(const char *pool_name, const char *ip,
               u_int16_t port, const char *user, const char *passwd,
+              const char *db_name,
               u_int16_t max_conn_cnt);
 
     ~MySqlPool();
@@ -183,6 +187,7 @@ class MySqlManager
 {
 public:
     MySqlManager() = default;
+
     ~MySqlManager() = default;
 
     static MySqlManager *GetInstance();
@@ -199,19 +204,20 @@ private:
 };
 
 //auto release connection
-class ConnectrionGuard
+class ConnectionGuard
 {
 public:
-    ConnectrionGuard(MySqlConnection *pconnection) : connection_(pconnection)
+    ConnectionGuard(MySqlConnection *pconnection) : connection_(pconnection)
     {}
 
-    ~ConnectrionGuard()
+    ~ConnectionGuard()
     {
         if (connection_)
         {
             MySqlManager::GetInstance()->ReleaseConnection(connection_);
         }
     }
+
 private:
     MySqlConnection *connection_ = nullptr;
 };
