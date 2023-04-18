@@ -8,6 +8,7 @@
 
 #include "mysql_pool.h"
 #include "ConfigFileReader.h"
+#include "ss_util.h"
 
 /*--------------ResultSet--------------*/
 
@@ -431,72 +432,6 @@ MySqlManager *MySqlManager::GetInstance()
         return static_mysql_manager_;
 }
 
-class CStrExplode
-{
-public:
-    CStrExplode(char *str, char seperator)
-    {
-        item_cnt_ = 1;
-        char *pos = str;
-        while (*pos)
-        {
-            if (*pos == seperator)
-            {
-                item_cnt_++;
-            }
-
-            pos++;
-        }
-
-        item_list_ = new char *[item_cnt_];
-
-        int idx = 0;
-        char *start = pos = str;
-        while (*pos)
-        {
-            if (pos != start && *pos == seperator)
-            {
-                uint32_t len = pos - start;
-                item_list_[idx] = new char[len + 1];
-                strncpy(item_list_[idx], start, len);
-                item_list_[idx][len] = '\0';
-                idx++;
-
-                start = pos + 1;
-            }
-
-            pos++;
-        }
-
-        uint32_t len = pos - start;
-        if (len != 0)
-        {
-            item_list_[idx] = new char[len + 1];
-            strncpy(item_list_[idx], start, len);
-            item_list_[idx][len] = '\0';
-        }
-    }
-
-    ~CStrExplode()
-    {
-        for (uint32_t i = 0; i < item_cnt_; i++)
-        {
-            delete[] item_list_[i];
-        }
-
-        delete[] item_list_;
-    }
-
-    uint32_t GetItemCnt() const
-    { return item_cnt_; }
-
-    char *GetItem(uint32_t idx)
-    { return item_list_[idx]; }
-
-private:
-    uint32_t item_cnt_;
-    char **item_list_;
-};
 
 int MySqlManager::Initialize()
 {

@@ -49,12 +49,12 @@ int main(int argc, char *argv[])
 
     initLog();
 
-    CacheManager *cacheManager = CacheManager::getInstance();
-    if(cacheManager==nullptr)
-    {
-        LOG_ERROR<<"CacheManager init failed";
-        return -1;
-    }
+//    CacheManager *cacheManager = CacheManager::getInstance();
+//    if(cacheManager==nullptr)
+//    {
+//        LOG_ERROR<<"CacheManager init failed";
+//        return -1;
+//    }
 
     ConfigFileReader config_file("ShareShift.conf");
 
@@ -71,9 +71,10 @@ int main(int argc, char *argv[])
     char *str_thread_num = config_file.GetConfigName("ThreadNum");
     uint32_t thread_num = atoi(str_thread_num);
 
-    ApiUploadInit(dfs_path_client, web_server_ip, web_server_port,
-                  storage_web_server_ip, storage_web_server_port);
-    ret = ApiDealfileInit(dfs_path_client);
-
+//    ApiUploadInit(dfs_path_client, web_server_ip, web_server_port,
+//                  storage_web_server_ip, storage_web_server_port);
+//    ret = ApiDealfileInit(dfs_path_client);
+    auto mysql_pool = MySqlManager::getInstance();
     deInitLog();
+
 }
