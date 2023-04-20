@@ -38,10 +38,13 @@ void XBaseSocket::SetRecvBufSize(uint32_t recv_size) {
   getsockopt(socket_, SOL_SOCKET, SO_RCVBUF, &size, &len);
   printf("socket=%d recv_buf_size=%d", socket_, size);
 }
-int XBaseSocket::Listen(const char *server_ip, uint16_t port, util::Callback callback, void *callback_data) {
+
+//TODO callback?
+template<typename...Args>
+int XBaseSocket::Listen(const char *server_ip, uint16_t port, util::Callback callback,Args...args) {
   local_ip_ = server_ip;
   local_port_ = port;
-  callback_ = std::move(callback);
+  callback_ = std::bind(callback, std::forward<Args>(args)...);
 
   socket_ = socket(AF_INET, SOCK_STREAM, 0);
   if (socket_ == kInvalidSocket) {
@@ -77,3 +80,5 @@ int XBaseSocket::Listen(const char *server_ip, uint16_t port, util::Callback cal
   AddBaseSocket(this);
   XEventDispatch::Instance()->AddEvent(socket_, SOCKET_READ | SOCKET_EXCEP);
 }
+
+

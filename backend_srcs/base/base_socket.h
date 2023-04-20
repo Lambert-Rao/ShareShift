@@ -19,6 +19,7 @@ enum SocketState {
 };
 
 /*-------------------XBaseSocket-------------------*/
+
 class XBaseSocket {
  public:
   XBaseSocket();
@@ -29,7 +30,8 @@ class XBaseSocket {
   void SetSocket(int fd) { socket_ = fd; }
   void SetState(SocketState state) { state_ = state; }
 //TODO callback??
-  void SetCallback(util::Callback callback) { callback_ = std::move(callback); }
+  template<typename...Args>
+  void SetCallback(Args&&...args) { callback_ = std::bind(std::forward<Args>(args)...); }
   void SetRemoteIp(char *ip) { remote_ip_ = ip; }
   void SetRemotePort(uint16_t port) { remote_port_ = port; }
   void SetSendBufSize(uint32_t send_size);
@@ -41,11 +43,13 @@ class XBaseSocket {
   [[nodiscard]] uint16_t GetLocalPort() const { return local_port_; }
 
  public:
+  //TODO 这Listen怎么回事，callback？
+  template<typename...Args>
   int Listen(const char *server_ip, uint16_t port, util::Callback callback,
-             void *callback_data);
-
+             Args...args);
+  template<typename...Args>
   int Connect(const char *server_ip, uint16_t port,
-              util::Callback callback, void *callback_data);
+              util::Callback callback,Args...args);
 
   int Send(void *buf, int len);
 
