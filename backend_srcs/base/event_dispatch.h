@@ -9,20 +9,13 @@
 
 #include "ss_util.h"
 
-enum {
-  SOCKET_READ = 0x1,
-  SOCKET_WRITE = 0x2,
-  SOCKET_EXCEP = 0x4,
-  SOCKET_ALL = 0x7
-};
-
 class XEventDispatch {
 
  public:
   virtual ~XEventDispatch();
 
-  void AddEvent(int fd, uint8_t socket_event);
-  void RemoveEvent(int fd, uint8_t socket_event);
+  void AddEvent(int fd);
+  void RemoveEvent(int fd);
 
   //TODO 检查addtimer的调用
   void AddTimer(const util::Callback& callback, std::chrono::milliseconds  interval);
@@ -33,7 +26,7 @@ class XEventDispatch {
   void StartDispatch(uint32_t wait_timeout = 100);
   void StopDispatch();
 
-  bool IsRunning() { return running_; }
+  bool IsRunning() const { return running_; }
 
   static XEventDispatch *Instance();
  protected:

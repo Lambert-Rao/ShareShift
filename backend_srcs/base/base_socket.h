@@ -44,12 +44,9 @@ class XBaseSocket {
 
  public:
   //TODO 这Listen怎么回事，callback？
+  int Listen(const char *server_ip, uint16_t port);
   template<typename...Args>
-  int Listen(const char *server_ip, uint16_t port, util::Callback callback,
-             Args...args);
-  template<typename...Args>
-  int Connect(const char *server_ip, uint16_t port,
-              util::Callback callback,Args...args);
+  int Connect(const char *server_ip, uint16_t port);
 
   int Send(void *buf, int len);
 

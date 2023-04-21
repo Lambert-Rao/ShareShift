@@ -3,8 +3,16 @@
 //
 
 #include "base_socket.h"
+#include "event_dispatch.h"
 
 #include <utility>
+
+enum {
+  SOCKET_READ = 0x1,
+  SOCKET_WRITE = 0x2,
+  SOCKET_EXCEP = 0x4,
+  SOCKET_ALL = 0x7
+};
 
 /*-------------------SocketMap-------------------*/
 using SocketMap = std::map<int, XBaseSocket *>;
@@ -40,11 +48,9 @@ void XBaseSocket::SetRecvBufSize(uint32_t recv_size) {
 }
 
 //TODO callback?
-template<typename...Args>
-int XBaseSocket::Listen(const char *server_ip, uint16_t port, util::Callback callback,Args...args) {
+int XBaseSocket::Listen(const char *server_ip, uint16_t port) {
   local_ip_ = server_ip;
   local_port_ = port;
-  callback_ = std::bind(callback, std::forward<Args>(args)...);
 
   socket_ = socket(AF_INET, SOCK_STREAM, 0);
   if (socket_ == kInvalidSocket) {
