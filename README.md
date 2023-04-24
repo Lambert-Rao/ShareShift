@@ -4,7 +4,7 @@ Other Language: [简体中文](./docs/zh-CN/README.zh-CN.md)
 
 ![Share Shift](docs/res/shareshif_logo.svg)
 
-[toc]
+
 
 build a cloud share platform with fastdfs and nginx
 

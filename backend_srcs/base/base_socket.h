@@ -17,7 +17,6 @@ enum SocketState {
   CONNECTED,
   CLOSING
 };
-
 /*-------------------XBaseSocket-------------------*/
 
 class XBaseSocket {
@@ -29,13 +28,16 @@ class XBaseSocket {
   [[nodiscard]] int GetSocket() const { return socket_; }
   void SetSocket(int fd) { socket_ = fd; }
   void SetState(SocketState state) { state_ = state; }
-//TODO callback??
-  template<typename...Args>
-  void SetCallback(Args&&...args) { callback_ = std::bind(std::forward<Args>(args)...); }
+//TODO callback_? bind the Args?
+  template <typename Func>
+  void SetCallback(Func &&func) {
+    callback_ = std::forward<Func>(func);
+  }
+
   void SetRemoteIp(char *ip) { remote_ip_ = ip; }
   void SetRemotePort(uint16_t port) { remote_port_ = port; }
-  void SetSendBufSize(uint32_t send_size);
-  void SetRecvBufSize(uint32_t recv_size);
+  void SetSendBufSize(uint32_t send_size) const;
+  void SetRecvBufSize(uint32_t recv_size) const;
 
   [[nodiscard]] const char *GetRemoteIp() { return remote_ip_.c_str(); }
   [[nodiscard]] uint16_t GetRemotePort() const { return remote_port_; }
@@ -43,9 +45,8 @@ class XBaseSocket {
   [[nodiscard]] uint16_t GetLocalPort() const { return local_port_; }
 
  public:
-  //TODO 这Listen怎么回事，callback？
+  //TODO 这Listen怎么回事，callback_？
   int Listen(const char *server_ip, uint16_t port);
-  template<typename...Args>
   int Connect(const char *server_ip, uint16_t port);
 
   int Send(void *buf, int len);
@@ -60,8 +61,7 @@ class XBaseSocket {
   void OnClose();
 
  private: // 私有函数以_ 开头
-  int GetErrorCode();
-  bool IsBlock(int error_code);
+  bool IsBlock() { return ((errno == EINPROGRESS) || (errno == EWOULDBLOCK)); }
 
   void SetNonBlock(int fd);
   void SetReuseAddr(int fd);
@@ -75,11 +75,10 @@ class XBaseSocket {
   uint16_t remote_port_{};
   std::string local_ip_{};
   uint16_t local_port_{};
-
-  util::Callback callback_{};
+  util::SocketCallback callback_{};
 
   SocketState state_{};
   int socket_{};
 };
 
-XBaseSocket *FindBaseSocket(int fd);
+std::shared_ptr<XBaseSocket> FindBaseSocket(int fd);

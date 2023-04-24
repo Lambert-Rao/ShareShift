@@ -3,6 +3,7 @@
 //
 
 #include "event_dispatch.h"
+#include "base_socket.h"
 using namespace std::chrono;
 constexpr int kMinTimerDuration = 100; // 100ms
 
@@ -17,27 +18,27 @@ XEventDispatch::~XEventDispatch() {
   close(epfd_);
 }
 
-void XEventDispatch::AddTimer(const util::Callback& callback, milliseconds interval) {
+void XEventDispatch::AddTimer(const util::SocketCallback& callback, milliseconds interval) {
   for (auto it = timer_list_.begin(); it != timer_list_.end(); it++) {
     TimerItem *pItem = *it;
-    if (pItem->callback == callback) {
-      pItem->interval = interval;
-      pItem->next_tick = steady_clock::now() + interval;
+    if (pItem->callback_ == callback) {
+      pItem->interval_ = interval;
+      pItem->next_tick_ = steady_clock::now() + interval;
       return;
     }
   }
 
   TimerItem *pItem = new TimerItem;
-  pItem->callback = callback;
-  pItem->interval = interval;
-  pItem->next_tick = steady_clock::now() + interval;
+  pItem->callback_ = callback;
+  pItem->interval_ = interval;
+  pItem->next_tick_ = steady_clock::now() + interval;
   timer_list_.push_back(pItem);
 }
 
-void XEventDispatch::RemoveTimer(util::Callback callback) {
+void XEventDispatch::RemoveTimer(util::SocketCallback callback) {
   for (auto it = timer_list_.begin(); it != timer_list_.end(); it++) {
     TimerItem *pItem = *it;
-    if (pItem->callback == callback) {
+    if (pItem->callback_ == callback) {
       timer_list_.erase(it);
       delete pItem;
       return;
@@ -49,24 +50,24 @@ void XEventDispatch::CheckTimer() {
   auto now = steady_clock::now();
   for (auto it = timer_list_.begin(); it != timer_list_.end();) {
     TimerItem *pItem = *it;
-    it++;//move the iterator first, because the callback may remove the timer
-    if (now >= pItem->next_tick) {
-      pItem->callback();
-      pItem->next_tick = now + pItem->interval;
+    it++;//move the iterator first, because the callback_ may remove the timer
+    if (now >= pItem->next_tick_) {
+      pItem->callback_();
+      pItem->next_tick_ = now + pItem->interval_;
     }
   }
 }
 
-void XEventDispatch::AddLoop(util::Callback callback) {
+void XEventDispatch::AddLoop(util::SocketCallback callback) {
   auto pItem = new TimerItem;
-    pItem->callback = callback;
+    pItem->callback_ = callback;
     loop_list_.push_back(pItem);
 }
 
 void XEventDispatch::CheckLoop() {
     for (auto it = loop_list_.begin(); it != loop_list_.end(); it++) {
         TimerItem *pItem = *it;
-        pItem->callback();
+        pItem->callback_();
     }
 }
 XEventDispatch *XEventDispatch::Instance() {
@@ -75,7 +76,7 @@ XEventDispatch *XEventDispatch::Instance() {
   }
     return event_dispatch_;
 }
-
+//TODO 检查锁，是否都上了锁
 void XEventDispatch::AddEvent(int fd) {
   struct epoll_event ev{};
   ev.events = EPOLLIN | EPOLLOUT | EPOLLET | EPOLLPRI | EPOLLERR | EPOLLHUP;
@@ -103,7 +104,7 @@ void XEventDispatch::StartDispatch(uint32_t wait_timeout) {
     nfds= epoll_wait(epfd_, events, 1024, wait_timeout);
     for(int i=0; i<nfds; i++) {
       int ev_fd = events[i].data.fd;
-      XBaseSocket *pSocket = XSocketManager::Instance()->FindBaseSocket(ev_fd);
+      auto  pSocket = FindBaseSocket(ev_fd);
         if(!pSocket)
             continue;
         if(events[i].events & EPOLLIN) {
@@ -115,9 +116,6 @@ void XEventDispatch::StartDispatch(uint32_t wait_timeout) {
         if(events[i].events & EPOLLPRI| EPOLLERR | EPOLLHUP) {
             pSocket->OnClose();
         }
-
-        //TODO pSocket should be a shared_ptr
-        delete pSocket;
     }
     //Everytime we check it to see if there is any timer to be triggered
     CheckTimer();

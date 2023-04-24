@@ -18,10 +18,10 @@ class XEventDispatch {
   void RemoveEvent(int fd);
 
   //TODO 检查addtimer的调用
-  void AddTimer(const util::Callback& callback, std::chrono::milliseconds  interval);
-  void RemoveTimer(util::Callback callback);
+  void AddTimer(const util::SocketCallback& callback, std::chrono::milliseconds  interval);
+  void RemoveTimer(util::SocketCallback callback);
 
-  void AddLoop(util::Callback callback);
+  void AddLoop(util::SocketCallback callback);
 
   void StartDispatch(uint32_t wait_timeout = 100);
   void StopDispatch();
@@ -34,9 +34,9 @@ class XEventDispatch {
  private:
   struct TimerItem {
     //TODO callback是不是得先绑定？
-    util::Callback callback;
-    std::chrono::milliseconds interval;
-    std::chrono::steady_clock::time_point next_tick;
+    util::SocketCallback callback_;
+    std::chrono::milliseconds interval_;
+    std::chrono::steady_clock::time_point next_tick_;
   };
 
   void CheckTimer();

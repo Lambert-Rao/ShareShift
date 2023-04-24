@@ -11,11 +11,23 @@
 #include <map>
 #include <sys/epoll.h>
 #include <chrono>
+#include <memory>
 
 constexpr int kSocketError = -1;
 constexpr int kInvalidSocket = -1;
 constexpr int kNetLibOk = 0;
 constexpr int kNetLibError = -1;
+constexpr int kInvalidHandle = -1;
+
+enum class NetLibMsg{
+  CONNECT,
+  CONFIRM,
+  READ,
+  WRITE,
+  CLOSE,
+  TIMER,
+  LOOP
+};
 
 namespace util {
 
@@ -32,5 +44,7 @@ class CStrExplode {
   uint32_t item_cnt_;
   char **item_list_;
 };
-using Callback = std::function<void()>;
+//when using callback_ function, we need to pass the params by binding
+using SocketCallback = std::function<void(NetLibMsg, int handle)>;
+using TimerCallback = std::function<void()>;
 }
