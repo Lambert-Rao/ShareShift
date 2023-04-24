@@ -6,13 +6,17 @@ Other Language: [简体中文](./docs/zh-CN/README.zh-CN.md)
 
 
 
-build a cloud share platform with fastdfs and nginx
+A cloud share platform with fastdfs and nginx
 
-
+<p style="background-color:deepskyblue;color:red;">
+Warning: This project is still under development, and the code is not buildable.</p>
+<p style="background-color:deepskyblue;color:red;">
+Can't run anyway!!
+</p>
 
 ## Install
 
-first, you need to build the enviroment, see [the enviroment file](./docs/enviroment.md), then you can install the project as follow:
+first, you need to build the enviroment, see [the enviroment file](./docs/enviroment.md), then you can install the project as followed:
 
 ```bash
     # install
