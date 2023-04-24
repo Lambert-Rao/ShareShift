@@ -9,31 +9,24 @@
 
 #include "ss_util.h"
 
-enum {
-  SOCKET_READ = 0x1,
-  SOCKET_WRITE = 0x2,
-  SOCKET_EXCEP = 0x4,
-  SOCKET_ALL = 0x7
-};
-
 class XEventDispatch {
 
  public:
   virtual ~XEventDispatch();
 
-  void AddEvent(int fd, uint8_t socket_event);
-  void RemoveEvent(int fd, uint8_t socket_event);
+  void AddEvent(int fd);
+  void RemoveEvent(int fd);
 
   //TODO 检查addtimer的调用
-  void AddTimer(const util::Callback& callback, std::chrono::milliseconds  interval);
-  void RemoveTimer(util::Callback callback);
+  void AddTimer(const util::SocketCallback& callback, std::chrono::milliseconds  interval);
+  void RemoveTimer(util::SocketCallback callback);
 
-  void AddLoop(util::Callback callback);
+  void AddLoop(util::SocketCallback callback);
 
   void StartDispatch(uint32_t wait_timeout = 100);
   void StopDispatch();
 
-  bool IsRunning() { return running_; }
+  bool IsRunning() const { return running_; }
 
   static XEventDispatch *Instance();
  protected:
@@ -41,9 +34,9 @@ class XEventDispatch {
  private:
   struct TimerItem {
     //TODO callback是不是得先绑定？
-    util::Callback callback;
-    std::chrono::milliseconds interval;
-    std::chrono::steady_clock::time_point next_tick;
+    util::SocketCallback callback_;
+    std::chrono::milliseconds interval_;
+    std::chrono::steady_clock::time_point next_tick_;
   };
 
   void CheckTimer();
