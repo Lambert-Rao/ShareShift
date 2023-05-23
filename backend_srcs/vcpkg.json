@@ -1,0 +1,9 @@
+{
+  "name" : "shareshift",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "40619a55c3e76dc4005c8d1b7395071471bb8b96",
+  "dependencies" : [ {
+    "name" : "poco",
+    "version>=" : "1.12.4#4"
+  } ]
+}

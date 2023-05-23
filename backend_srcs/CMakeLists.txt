@@ -1,31 +1,8 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+cmake_minimum_required(VERSION 3.25)
+project(ShareShift)
 
-PROJECT(ShareShift)
+set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_STANDARD 20)
-
-AUX_SOURCE_DIRECTORY(. DIR_SRCS)
-AUX_SOURCE_DIRECTORY(log DIR_LOG)
-AUX_SOURCE_DIRECTORY(jsoncpp DIR_JSONCPP)
-AUX_SOURCE_DIRECTORY(redis DIR_REDIS)
-AUX_SOURCE_DIRECTORY(mysql_pool DIR_MYSQL_POOL)
-AUX_SOURCE_DIRECTORY(base DIR_BASE)
-AUX_SOURCE_DIRECTORY(api DIR_API)
-
-
-SET(EXCUTABLE_OUTPUT_PATH .. ./build)
-
-
-INCLUDE_DIRECTORIES(/usr/local/include/fastcommon /usr/local/include/fastdfs /usr/local/include/mysql)
-INCLUDE_DIRECTORIES(..)
-INCLUDE_DIRECTORIES(log)
-INCLUDE_DIRECTORIES(base)
-INCLUDE_DIRECTORIES(mysql_pool)
-INCLUDE_DIRECTORIES(redis)
-INCLUDE_DIRECTORIES(jsoncpp)
-INCLUDE_DIRECTORIES(api)
-
-
-
-ADD_EXECUTABLE(ShareShift ${DIR_SRCS} ${DIR_LOG} ${DIR_MYSQL_POOL} ${DIR_BASE} ${DIR_JSONCPP} ${DIR_API})
-TARGET_LINK_LIBRARIES(ShareShift mysqlclient pthread fastcommon)
+find_package(Poco REQUIRED COMPONENTS Foundation Util Net XML JSON)
+add_executable(shareshift_server main.cpp)
+target_link_libraries(shareshift_server Poco::Foundation Poco::Util Poco::Net Poco::XML Poco::JSON)
